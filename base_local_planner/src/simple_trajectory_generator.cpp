@@ -39,7 +39,7 @@
 
 #include <cmath>
 
-#include <base_local_planner/velocity_iterator.h>
+#include <base_local_planner/velocity_iterator_exp.h>
 
 namespace base_local_planner {
 
@@ -104,6 +104,12 @@ void SimpleTrajectoryGenerator::initialise(
       min_vel[1] = std::max(min_vel_y, vel[1] - acc_lim[1] * sim_time_);
       min_vel[2] = std::max(min_vel_th, vel[2] - acc_lim[2] * sim_time_);
     } else {
+      // there is no point in overshooting the goal, and it also may break the
+      // robot behavior, so we limit the velocities to those that do not overshoot in sim_time
+      double dist = hypot(goal[0] - pos[0], goal[1] - pos[1]);
+      max_vel_x = std::max(std::min(max_vel_x, dist / sim_period_), min_vel_x);
+      max_vel_y = std::max(std::min(max_vel_y, dist / sim_period_), min_vel_y);
+
       // with dwa do not accelerate beyond the first step, we only sample within velocities we reach in sim_period
       max_vel[0] = std::min(max_vel_x, vel[0] + acc_lim[0] * sim_period_);
       max_vel[1] = std::min(max_vel_y, vel[1] + acc_lim[1] * sim_period_);
@@ -115,9 +121,9 @@ void SimpleTrajectoryGenerator::initialise(
     }
 
     Eigen::Vector3f vel_samp = Eigen::Vector3f::Zero();
-    VelocityIterator x_it(min_vel[0], max_vel[0], vsamples[0]);
-    VelocityIterator y_it(min_vel[1], max_vel[1], vsamples[1]);
-    VelocityIterator th_it(min_vel[2], max_vel[2], vsamples[2]);
+    VelocityIteratorExp x_it(vel[0], min_vel[0], max_vel[0], vsamples[0], limits_->min_vel_trans, 2);
+    VelocityIteratorExp y_it(vel[1], min_vel[1], max_vel[1], vsamples[1], limits_->min_vel_trans, 2);
+    VelocityIteratorExp th_it(vel[2], min_vel[2], max_vel[2], vsamples[2], limits_->min_vel_theta, 2);
     for(; !x_it.isFinished(); x_it++) {
       vel_samp[0] = x_it.getVelocity();
       for(; !y_it.isFinished(); y_it++) {
@@ -208,7 +214,7 @@ bool SimpleTrajectoryGenerator::generateTrajectory(
     double sim_time_angle = fabs(sample_target_vel[2]) * sim_time_; // the angle the robot would rotate in sim_time
     num_steps =
         ceil(std::max(sim_time_distance / sim_granularity_,
-            sim_time_angle    / angular_sim_granularity_));
+            sim_time_angle / angular_sim_granularity_));
   }
 
   if (num_steps == 0) {

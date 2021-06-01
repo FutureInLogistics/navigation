@@ -153,6 +153,7 @@ if(CATKIN_ENABLE_TESTING)
     test/gtest_main.cpp
     test/utest.cpp
     test/velocity_iterator_test.cpp
+    test/velocity_iterator_exp_test.cpp
     test/footprint_helper_test.cpp
     test/trajectory_generator_test.cpp
     test/map_grid_test.cpp)
