@@ -304,6 +304,9 @@ void Costmap2DROS::copyParentParameters(const std::string& plugin_name, const st
     move_parameter(nh, target_layer, "cost_scaling_factor", false);
     move_parameter(nh, target_layer, "inflation_radius", false);
   }
+  else if(plugin_type == "costmap_2d::ObjectLayer")
+  {
+  }
 }
 
 void Costmap2DROS::warnForOldParameters(ros::NodeHandle& nh)

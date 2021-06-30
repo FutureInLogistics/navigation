@@ -6,6 +6,7 @@
 #include <costmap_2d/static_layer.h>
 #include <costmap_2d/obstacle_layer.h>
 #include <costmap_2d/inflation_layer.h>
+#include <costmap_2d/object_layer.h>
 
 #include <sensor_msgs/point_cloud2_iterator.h>
 
@@ -60,6 +61,14 @@ costmap_2d::ObstacleLayer* addObstacleLayer(costmap_2d::LayeredCostmap& layers, 
 {
   costmap_2d::ObstacleLayer* olayer = new costmap_2d::ObstacleLayer();
   olayer->initialize(&layers, "obstacles", &tf);
+  layers.addPlugin(boost::shared_ptr<costmap_2d::Layer>(olayer));
+  return olayer;
+}
+
+costmap_2d::ObjectLayer* addObjectLayer(costmap_2d::LayeredCostmap& layers, tf2_ros::Buffer& tf)
+{
+  costmap_2d::ObjectLayer* olayer = new costmap_2d::ObjectLayer();
+  olayer->initialize(&layers, "objects", &tf);
   layers.addPlugin(boost::shared_ptr<costmap_2d::Layer>(olayer));
   return olayer;
 }

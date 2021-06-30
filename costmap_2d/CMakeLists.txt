@@ -55,6 +55,7 @@ generate_dynamic_reconfigure_options(
   cfg/GenericPlugin.cfg
   cfg/InflationPlugin.cfg
   cfg/VoxelPlugin.cfg
+  cfg/ObjectPlugin.cfg
 )
 
 catkin_package(
@@ -105,6 +106,7 @@ add_library(layers
   plugins/obstacle_layer.cpp
   plugins/static_layer.cpp
   plugins/voxel_layer.cpp
+  plugins/object_layer.cpp
   src/observation_buffer.cpp
 )
 add_dependencies(layers ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -165,6 +167,10 @@ if(CATKIN_ENABLE_TESTING)
   add_dependencies(tests inflation_tests)
   target_link_libraries(inflation_tests costmap_2d layers ${GTEST_LIBRARIES})
 
+  add_executable(object_tests EXCLUDE_FROM_ALL test/object_tests.cpp)
+  add_dependencies(tests object_tests)
+  target_link_libraries(object_tests costmap_2d layers ${GTEST_LIBRARIES})
+
   catkin_download_test_data(${PROJECT_NAME}_simple_driving_test_indexed.bag
     http://download.ros.org/data/costmap_2d/simple_driving_test_indexed.bag
     DESTINATION ${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/test
@@ -179,6 +185,7 @@ if(CATKIN_ENABLE_TESTING)
   add_rostest(test/obstacle_tests.launch)
   add_rostest(test/simple_driving_test.xml)
   add_rostest(test/static_tests.launch)
+  add_rostest(test/object_tests.launch)
 
   catkin_add_gtest(array_parser_test test/array_parser_test.cpp)
   target_link_libraries(array_parser_test costmap_2d)
